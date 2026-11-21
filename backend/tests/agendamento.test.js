@@ -25,3 +25,19 @@ describe('Regras de Agendamento de Consultas', () => {
     expect(resultado.valido).toBe(true);
   });
 });
+
+test('deve permitir agendamento exatamente às 08:00 (limite inferior)', () => {
+    const resultado = validarAgendamento({
+      dataHora: '2026-12-10T08:00:00',
+      horariosOcupados: []
+    });
+    expect(resultado.valido).toBe(true);
+  });
+
+  test('deve bloquear agendamento exatamente às 18:00 (limite superior)', () => {
+    const resultado = validarAgendamento({
+      dataHora: '2026-12-10T18:00:00',
+      horariosOcupados: []
+    });
+    expect(resultado.valido).toBe(false);
+  });
