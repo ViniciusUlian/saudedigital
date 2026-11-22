@@ -1,0 +1,29 @@
+name: CI - Quality Gate SaudeDigital
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ develop ]
+
+jobs:
+  testes-e-qualidade:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Rodar testes e cobertura
+        run: npx jest --coverage

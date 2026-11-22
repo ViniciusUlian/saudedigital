@@ -1,0 +1,6 @@
+{
+  "testRunner": "jest",
+  "mutate": ["src/services/validarAgendamento.js"],
+  "coverageAnalysis": "perTest",
+  "reporters": ["clear-text", "html"]
+}
