@@ -2,12 +2,21 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// Consultar prontuário de uma consulta específica
+// Listar todos os prontuários através da visão VW_PRONTUARIO_COMPLETO (3FN)
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM vw_prontuario_completo ORDER BY id_prontuario DESC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao listar prontuários', detalhes: error.message });
+  }
+});
+
+// Buscar prontuário de uma consulta específica
 router.get('/:id_consulta', async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT id_prontuario, id_consulta, sintomas_relatados, diagnostico, prescricao_medica, observacoes_adicionais
-       FROM prontuario WHERE id_consulta = ?`,
+      'SELECT * FROM vw_prontuario_completo WHERE id_consulta = ?',
       [req.params.id_consulta]
     );
     if (rows.length === 0) {
@@ -19,7 +28,7 @@ router.get('/:id_consulta', async (req, res) => {
   }
 });
 
-// Emitir prontuário (1:1 com consulta) e marcar consulta como Realizada
+// Emitir prontuário (1:1 com consulta) e atualizar status para Realizada
 router.post('/', async (req, res) => {
   const { id_consulta, sintomas_relatados, diagnostico, prescricao_medica, observacoes_adicionais } = req.body;
   const conn = await db.getConnection();

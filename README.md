@@ -1,4 +1,4 @@
-# SaúdeDigital — Sistema de Gestão Clínica (SQA & UC HUB 2026/2)
+# SaúdeDigital — Sistema de Gestão Clínica (SQA 2026/2)
 
 Sistema web para gestão de clínicas médicas (pacientes, médicos, especialidades e agendamento de consultas), modernizado com práticas de **Gestão e Qualidade de Software** com foco no módulo crítico de **Agendamento de Consultas**.
 
