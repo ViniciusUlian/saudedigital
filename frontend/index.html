@@ -43,18 +43,18 @@
           </button>
         </nav>
       </div>
-      <div class="text-xs text-slate-400 px-2">MySQL 3FN • Soft Delete Ativo</div>
+      <div class="text-xs text-slate-400 px-2">Gestão Clínica Integrada</div>
     </aside>
 
     <!-- Conteúdo Principal -->
     <main class="flex-1 p-8 overflow-y-auto">
       
-      <!-- SEÇÃO 1: AGENDA -->
+      <!-- SEÇÃO 1: AGENDA (SOMENTE CONTROLE DE AGENDAMENTOS) -->
       <section id="sec-agenda" class="space-y-6">
         <div class="flex justify-between items-center">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">Agenda de Consultas</h1>
-            <p class="text-sm text-slate-500">Agendamento vinculado à unidade de atendimento e especialidade habilitada do médico</p>
+            <p class="text-sm text-slate-500">Controle de horários, agendamentos e cancelamentos da clínica</p>
           </div>
           <button onclick="prepararModalConsulta()"
             class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm transition">
@@ -79,16 +79,22 @@
         </div>
       </section>
 
-      <!-- SEÇÃO 2: PRONTUÁRIOS (EXCLUSIVA - VW_PRONTUARIO_COMPLETO) -->
+      <!-- SEÇÃO 2: PRONTUÁRIOS -->
       <section id="sec-prontuarios" class="hidden space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">Prontuários Clínicos</h1>
-            <p class="text-sm text-slate-500">Histórico consolidado via visão relacional (VW_PRONTUARIO_COMPLETO)</p>
+            <p class="text-sm text-slate-500">Histórico de atendimentos, diagnósticos e prescrições médicas</p>
           </div>
-          <input type="text" id="busca-prontuario" oninput="filtrarProntuarios()"
-            placeholder="Filtrar por paciente, médico ou diagnóstico..."
-            class="bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm w-full sm:w-80 focus:outline-teal-600" />
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="busca-prontuario" oninput="filtrarProntuarios()"
+              placeholder="Buscar por paciente, médico ou diagnóstico..."
+              class="bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm w-full sm:w-72 focus:outline-teal-600" />
+            <button onclick="prepararModalProntuario()"
+              class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 shadow-sm transition shrink-0">
+              <i data-lucide="file-plus" class="w-4 h-4"></i> Novo Prontuário
+            </button>
+          </div>
         </div>
 
         <div id="grid-prontuarios" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
@@ -99,7 +105,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">Pacientes</h1>
-            <p class="text-sm text-slate-500">Cadastro normalizado com exclusão lógica (Soft Delete)</p>
+            <p class="text-sm text-slate-500">Cadastro e gerenciamento de pacientes da clínica</p>
           </div>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
@@ -121,7 +127,7 @@
                 <th class="py-3.5 px-5">CPF</th>
                 <th class="py-3.5 px-5">Nascimento</th>
                 <th class="py-3.5 px-5">Telefone</th>
-                <th class="py-3.5 px-5">Endereço (3FN)</th>
+                <th class="py-3.5 px-5">Endereço</th>
                 <th class="py-3.5 px-5 text-right">Status / Ações</th>
               </tr>
             </thead>
@@ -136,7 +142,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 class="font-bold text-slate-900">Especialidades Clínicas</h2>
-              <p class="text-xs text-slate-500">Cadastre ou inative especialidades (bloqueado se houver médico ativo vinculado)</p>
+              <p class="text-xs text-slate-500">Cadastre ou inative especialidades médicas</p>
             </div>
             <form id="form-especialidade" class="flex gap-2">
               <input type="text" id="esp-nome" placeholder="Nova especialidade..." required
@@ -152,7 +158,7 @@
         <div class="flex justify-between items-center pt-2">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">Corpo Clínico</h1>
-            <p class="text-sm text-slate-500">Relacionamento N:M entre Médicos e Especialidades</p>
+            <p class="text-sm text-slate-500">Gerenciamento de médicos e suas especialidades</p>
           </div>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
@@ -168,12 +174,12 @@
         <div id="grid-medicos" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
       </section>
 
-      <!-- SEÇÃO 5: UNIDADES (MATRIZ E FILIAIS) -->
+      <!-- SEÇÃO 5: UNIDADES -->
       <section id="sec-unidades" class="hidden space-y-6">
         <div class="flex justify-between items-center">
           <div>
             <h1 class="text-2xl font-bold text-slate-900">Unidades de Atendimento</h1>
-            <p class="text-sm text-slate-500">Matriz e Filiais com endereço atômico (1FN / 3FN)</p>
+            <p class="text-sm text-slate-500">Gerenciamento da matriz e filiais da clínica</p>
           </div>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
@@ -214,7 +220,7 @@
           <select id="cons-medico" onchange="carregarEspecialidadesDoMedico(this.value)" required class="w-full border rounded-lg px-3 py-2 bg-white"></select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Especialidade (habilitada para o médico)</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Especialidade</label>
           <select id="cons-especialidade" required class="w-full border rounded-lg px-3 py-2 bg-white"></select>
         </div>
         <div>
@@ -313,7 +319,7 @@
     </div>
   </div>
 
-  <!-- MODAL: EMITIR PRONTUÁRIO -->
+  <!-- MODAL: NOVO PRONTUÁRIO (DENTRO DA ABA PRONTUÁRIOS) -->
   <div id="modal-prontuario" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
       <div class="flex justify-between items-center border-b pb-3">
@@ -321,14 +327,17 @@
         <button onclick="fecharModal('modal-prontuario')" class="text-slate-400 hover:text-slate-600 text-xl">×</button>
       </div>
       <form id="form-prontuario" class="space-y-3 text-sm">
-        <input type="hidden" id="pront-id-consulta" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Consulta / Atendimento</label>
+          <select id="pront-id-consulta" required class="w-full border rounded-lg px-3 py-2 bg-white"></select>
+        </div>
         <textarea id="pront-sintomas" rows="2" placeholder="Sintomas relatados" required class="w-full border rounded-lg px-3 py-2"></textarea>
         <textarea id="pront-diagnostico" rows="2" placeholder="Diagnóstico" required class="w-full border rounded-lg px-3 py-2"></textarea>
         <textarea id="pront-prescricao" rows="2" placeholder="Prescrição médica" required class="w-full border rounded-lg px-3 py-2"></textarea>
         <textarea id="pront-obs" rows="2" placeholder="Observações adicionais (opcional)" class="w-full border rounded-lg px-3 py-2"></textarea>
         <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="fecharModal('modal-prontuario')" class="px-4 py-2 rounded-lg border">Fechar</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-teal-600 text-white font-medium">Finalizar Atendimento</button>
+          <button type="button" onclick="fecharModal('modal-prontuario')" class="px-4 py-2 rounded-lg border">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-teal-600 text-white font-medium">Salvar Prontuário</button>
         </div>
       </form>
     </div>
@@ -338,7 +347,7 @@
   <div id="modal-ver-prontuario" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 space-y-4">
       <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="font-bold text-lg text-slate-900">Prontuário Completo (3FN)</h3>
+        <h3 class="font-bold text-lg text-slate-900">Prontuário Completo</h3>
         <button onclick="fecharModal('modal-ver-prontuario')" class="text-slate-400 hover:text-slate-600 text-xl">×</button>
       </div>
       <div id="conteudo-prontuario" class="space-y-3 text-sm text-slate-700"></div>

@@ -57,7 +57,7 @@ async function buscarCep(cep, idLogradouro, idNumero) {
   } catch (e) {}
 }
 
-// --- 1. AGENDA ---
+// --- 1. AGENDA (SOMENTE CONTROLE DE AGENDAMENTOS) ---
 async function carregarConsultas() {
   const consultas = await requisicaoAPI('/consultas');
   const tbody = document.getElementById('tabela-consultas');
@@ -78,18 +78,12 @@ async function carregarConsultas() {
       dateStyle: 'short', timeStyle: 'short'
     });
 
-    let acoes = '';
-    if (c.id_prontuario) {
-      acoes = `<button onclick="verProntuario(${c.id_consulta})" class="text-teal-700 hover:underline font-medium text-xs">Ver Prontuário</button>`;
-    } else if (c.status_consulta === 'Agendada') {
-      acoes = `
-        <button onclick="abrirProntuario(${c.id_consulta})" class="bg-teal-600 text-white px-2.5 py-1 rounded-md text-xs font-medium hover:bg-teal-700 mr-2">Atender</button>
-        <button onclick="cancelarConsulta(${c.id_consulta})" class="text-amber-700 hover:underline text-xs mr-2">Cancelar</button>
-        <button onclick="excluirConsulta(${c.id_consulta})" class="text-rose-600 hover:underline text-xs">Excluir</button>
-      `;
-    } else {
-      acoes = `<button onclick="excluirConsulta(${c.id_consulta})" class="text-rose-600 hover:underline text-xs">Excluir</button>`;
-    }
+    const acoes = c.status_consulta === 'Agendada'
+      ? `
+        <button onclick="cancelarConsulta(${c.id_consulta})" class="text-amber-700 hover:underline text-xs font-medium mr-3">Cancelar</button>
+        <button onclick="excluirConsulta(${c.id_consulta})" class="text-rose-600 hover:underline text-xs font-medium">Excluir</button>
+      `
+      : `<button onclick="excluirConsulta(${c.id_consulta})" class="text-rose-600 hover:underline text-xs font-medium">Excluir</button>`;
 
     return `
       <tr class="hover:bg-slate-50">
@@ -172,8 +166,21 @@ async function excluirConsulta(id) {
   carregarConsultas();
 }
 
-function abrirProntuario(idConsulta) {
-  document.getElementById('pront-id-consulta').value = idConsulta;
+// --- 2. PRONTUÁRIOS ---
+async function prepararModalProntuario() {
+  const consultas = await requisicaoAPI('/consultas');
+  const pendentes = consultas.filter(c => !c.id_prontuario && c.status_consulta !== 'Cancelada');
+
+  if (pendentes.length === 0) {
+    alert('Não há consultas disponíveis para emissão de prontuário. Agende uma consulta primeiro.');
+    return;
+  }
+
+  document.getElementById('pront-id-consulta').innerHTML = pendentes.map(c => {
+    const dataStr = new Date(c.data_hora_agendamento).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    return `<option value="${c.id_consulta}">${dataStr} — ${c.nome_paciente} (${c.nome_medico})</option>`;
+  }).join('');
+
   abrirModal('modal-prontuario');
 }
 
@@ -195,10 +202,9 @@ document.getElementById('form-prontuario').addEventListener('submit', async (e) 
 
   fecharModal('modal-prontuario');
   e.target.reset();
-  navegar('prontuarios');
+  carregarProntuarios();
 });
 
-// --- 2. PRONTUÁRIOS (VW_PRONTUARIO_COMPLETO) ---
 function normalizarDadosProntuario(p) {
   return {
     id_prontuario: p.id_prontuario,
@@ -238,7 +244,7 @@ function filtrarProntuarios() {
 function renderizarCardsProntuarios(lista) {
   const grid = document.getElementById('grid-prontuarios');
   if (lista.length === 0) {
-    grid.innerHTML = `<p class="text-slate-400 text-sm col-span-2">Nenhum prontuário encontrado.</p>`;
+    grid.innerHTML = `<p class="text-slate-400 text-sm col-span-2">Nenhum prontuário registrado.</p>`;
     return;
   }
 
@@ -259,7 +265,7 @@ function renderizarCardsProntuarios(lista) {
 
         <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg">
           <div>
-            <span class="text-slate-400 block">Médico Responsável (3FN)</span>
+            <span class="text-slate-400 block">Médico Responsável</span>
             <strong class="text-slate-800">${p.medico}</strong> ${p.crm ? `(CRM ${p.crm})` : ''}
             <span class="block text-teal-700 font-medium">${p.especialidade}</span>
           </div>
@@ -297,7 +303,7 @@ async function verProntuario(idConsulta) {
   abrirModal('modal-ver-prontuario');
 }
 
-// --- 3. PACIENTES (SOFT DELETE) ---
+// --- 3. PACIENTES ---
 async function carregarPacientes() {
   const todos = document.getElementById('chk-pacientes-inativos').checked;
   const pacientes = await requisicaoAPI(`/pacientes?todos=${todos}`);
@@ -330,7 +336,7 @@ async function carregarPacientes() {
 }
 
 async function inativarPaciente(id, nome) {
-  if (!confirm(`Deseja inativar o paciente "${nome}"? O histórico clínico será preservado.`)) return;
+  if (!confirm(`Deseja inativar o paciente "${nome}"?`)) return;
   await requisicaoAPI(`/pacientes/${id}`, { method: 'DELETE' });
   carregarPacientes();
 }
@@ -359,7 +365,7 @@ document.getElementById('form-paciente').addEventListener('submit', async (e) =>
   carregarPacientes();
 });
 
-// --- 4. MÉDICOS & ESPECIALIDADES (SOFT DELETE) ---
+// --- 4. MÉDICOS & ESPECIALIDADES ---
 async function carregarEspecialidadesTags() {
   const especialidades = await requisicaoAPI('/medicos/especialidades');
   const container = document.getElementById('lista-tags-especialidades');
@@ -481,7 +487,7 @@ document.getElementById('form-medico').addEventListener('submit', async (e) => {
   carregarMedicos();
 });
 
-// --- 5. UNIDADES (MATRIZ E FILIAIS) ---
+// --- 5. UNIDADES ---
 async function carregarUnidades() {
   const todos = document.getElementById('chk-unidades-inativas').checked;
   const unidades = await requisicaoAPI(`/unidades?todos=${todos}`);
